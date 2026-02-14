@@ -1,55 +1,285 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - AI Blog Generator</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        html.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        html.dark-mode body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f3f4f6;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #3b82f6 0%, #1e40af 100%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        html.dark-mode .navbar {
+            background: linear-gradient(90deg, #1e3a8a 0%, #0f172a 100%);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        html.dark-mode .card {
+            background: #111827;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-field {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        html.dark-mode .input-field {
+            background: #1f2937;
+            border-color: #374151;
+            color: #f3f4f6;
+        }
+
+        html.dark-mode .input-field:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        html.dark-mode .error-message {
+            background: #7f1d1d;
+            color: #fecaca;
+        }
+
+        .dark-toggle {
+            background: #e5e7eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #3b82f6;
+            border: none;
+            z-index: 10;
+        }
+
+        html.dark-mode .dark-toggle {
+            background: #374151;
+            color: #93c5fd;
+        }
+
+        .dark-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        html.dark-mode h1,
+        html.dark-mode h2,
+        html.dark-mode h3,
+        html.dark-mode p,
+        html.dark-mode a {
+            color: #f3f4f6;
+        }
+
+        .auth-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        html.dark-mode .auth-link {
+            color: #60a5fa;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased">
+<body class="flex flex-col min-h-screen">
+
     <!-- Navbar -->
-    <nav class="bg-blue-600 p-4 text-white flex justify-between">
-        <div>
+    <nav class="navbar p-4 text-white flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-sparkles text-2xl"></i>
             <h1 class="text-3xl font-bold">AI Blog Generator</h1>
         </div>
-        <div>
-            <a href="login" class="text-white hover:underline">Login</a>
-            <a href="signup" class="text-white hover:underline">Signup</a>
+        <div class="flex items-center gap-4">
+            <a href="/login" class="text-white hover:text-gray-200 transition-colors flex items-center gap-2">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="hidden md:inline">Login</span>
+            </a>
+            <a href="/signup" class="text-white hover:text-gray-200 transition-colors flex items-center gap-2">
+                <i class="fas fa-user-plus"></i>
+                <span class="hidden md:inline">Signup</span>
+            </a>
+            <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">
+                <i class="fas fa-moon" id="darkIcon"></i>
+            </button>
         </div>
     </nav>
 
-    <!-- Main content -->
-    <div class="flex items-center justify-center h-screen">
-        <div class="bg-white p-8 shadow-md rounded-lg max-w-md w-full">
+    <!-- Main Content -->
+    <div class="flex-grow container mx-auto mt-8 px-4 sm:px-0">
+        <div class="max-w-md mx-auto card p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-block p-3 bg-blue-100 text-blue-600 rounded-lg mb-4">
+                    <i class="fas fa-sign-in-alt text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Welcome Back</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">Sign in to your account to continue</p>
+            </div>
 
-            <!-- Login form -->
-            <form class="space-y-4" action="" method="POST">
+            <!-- Error Message -->
+            {% if error_message %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ error_message }}</span>
+                </div>
+            {% endif %}
+
+            <!-- Login Form -->
+            <form method="POST" class="space-y-5">
                 {% csrf_token %}
 
-                {% if error_message %}
-                    <div align="center" style="color: red;">
-                        <h2>
-                            {{ error_message }}
-                        </h2>
-                    </div>
-                {% endif %}
-
-                <h2 class="text-xl font-semibold">Login</h2>
                 <div>
-                    <label for="username" class="block mb-1 font-medium">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username..." class="w-full p-2 border rounded">
+                    <label for="username" class="block font-semibold text-gray-900 dark:text-white mb-2">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Enter your username" 
+                        class="input-field w-full"
+                        required
+                        autocomplete="username"
+                    >
                 </div>
 
                 <div>
-                    <label for="password" class="block mb-1 font-medium">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password..." class="w-full p-2 border rounded">
+                    <label for="password" class="block font-semibold text-gray-900 dark:text-white mb-2">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password" 
+                        class="input-field w-full"
+                        required
+                        autocomplete="current-password"
+                    >
                 </div>
-                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Login</button>
+
+                <button type="submit" class="btn-primary action-btn w-full py-3 rounded-lg font-semibold">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Sign In</span>
+                </button>
             </form>
 
+            <!-- Toggle to Signup -->
+            <div class="text-center mt-6 text-gray-600 dark:text-gray-400 text-sm">
+                Don't have an account? 
+                <a href="/signup" class="auth-link">Create one</a>
+            </div>
         </div>
     </div>
 
+    <footer class="text-center py-4 mt-8">
+        <p class="text-gray-500 dark:text-gray-400 text-sm">AI Blog Generator • Transform YouTube videos into articles</p>
+    </footer>
+
+    <script>
+        // Dark Mode Toggle
+        const htmlRoot = document.getElementById('htmlRoot');
+        const darkToggle = document.getElementById('darkToggle');
+        const darkIcon = document.getElementById('darkIcon');
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            htmlRoot.classList.add('dark-mode');
+            darkIcon.classList.remove('fa-moon');
+            darkIcon.classList.add('fa-sun');
+        }
+
+        darkToggle.addEventListener('click', () => {
+            htmlRoot.classList.toggle('dark-mode');
+            const isDark = htmlRoot.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            darkIcon.classList.toggle('fa-moon');
+            darkIcon.classList.toggle('fa-sun');
+        });
+
+        // Focus effect
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('focused');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
 
 </body>
 </html>
