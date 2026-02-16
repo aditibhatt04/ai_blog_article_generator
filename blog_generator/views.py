@@ -58,7 +58,7 @@ def generate_blog(request):
             return JsonResponse({'error': f'Failed to get transcription: {str(e)}'}, status=500)
 
         try:
-            # use OpenAI to generate the blog
+            # use Puter.js AI to generate the blog
             print(f"[DEBUG] Generating blog from transcription...")
             blog_content = generate_blog_from_transcription(transcription)
             print(f"[DEBUG] Generated blog (length: {len(blog_content) if blog_content else 0})")
