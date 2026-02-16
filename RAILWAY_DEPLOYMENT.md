@@ -11,10 +11,20 @@ SECRET_KEY=your-secret-key-here
 DEBUG=False
 ALLOWED_HOSTS=yourdomain.railway.app,www.yourdomain.railway.app
 ASSEMBLYAI_API_KEY=your-assemblyai-api-key
-GOOGLE_API_KEY=your-google-api-key
+PUTER_AUTH_TOKEN=your-puter-auth-token
 ```
 
 **Note:** The .env file is already in .gitignore, so it won't be pushed to GitHub.
+
+To get your Puter auth token, run locally:
+```bash
+node get_puter_token.js
+```
+
+Or manually get it from https://puter.com:
+1. Log in to your Puter account
+2. Open DevTools (F12) → Application → Local Storage
+3. Find `auth_token` in puter.com local storage
 
 ## Step 2: Initialize a Git Repository (if not already done)
 
@@ -66,7 +76,7 @@ Once the project is connected to Railway:
 | `DEBUG` | `False` |
 | `ALLOWED_HOSTS` | `your-domain.railway.app` (Railway will show you the domain) |
 | `ASSEMBLYAI_API_KEY` | Your AssemblyAI API key from https://www.assemblyai.com |
-| `GOOGLE_API_KEY` | Your Google Generative AI key from https://aistudio.google.com |
+| `PUTER_AUTH_TOKEN` | Your Puter auth token from https://puter.com (see Step 1 for how to get it) |
 
 **Railway will automatically provide:**
 - `DATABASE_URL` - PostgreSQL connection string

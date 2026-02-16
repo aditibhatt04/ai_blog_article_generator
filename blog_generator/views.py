@@ -9,13 +9,13 @@ import json
 import yt_dlp
 import os
 import assemblyai as aai
-import google.generativeai as genai
 from .models import BlogPost
 import imageio_ffmpeg
 import logging
 import subprocess
 import signal
 from decouple import config
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -180,12 +180,12 @@ def get_transcription(link):
         print(f"[DEBUG] Audio file: {audio_file}")
         
         # For the new AssemblyAI SDK, create config with speech_models
-        config = aai.TranscriptionConfig(speech_models=["universal-2"])
+        transcription_config = aai.TranscriptionConfig(speech_models=["universal-2"])
         
-        print(f"[DEBUG] Transcribing with config: {config}")
+        print(f"[DEBUG] Transcribing with config: {transcription_config}")
         
         # Transcribe using the config
-        transcript = transcriber.transcribe(audio_file, config)
+        transcript = transcriber.transcribe(audio_file, transcription_config)
         
         if transcript is None:
             raise Exception("AssemblyAI returned None - API key may be invalid or account has no credits")
@@ -229,14 +229,10 @@ def get_transcription(link):
 
 def generate_blog_from_transcription(transcription):
     try:
-        # Use Google Generative AI (Gemini) for blog generation
-        google_api_key = config('GOOGLE_API_KEY')
-        if not google_api_key:
-            raise Exception("GOOGLE_API_KEY environment variable not set")
-        genai.configure(api_key=google_api_key)
-        
-        # Use the latest available model
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        # Use Puter.js AI via Node.js subprocess
+        puter_auth_token = config('PUTER_AUTH_TOKEN', default=None)
+        if not puter_auth_token:
+            raise Exception("PUTER_AUTH_TOKEN environment variable not set")
         
         prompt = f"""You are a professional blog writer. Convert the following YouTube video transcript into a well-structured, engaging blog article.
 
@@ -251,15 +247,74 @@ Transcript:
 
 Please generate a professional blog article."""
         
-        print(f"[DEBUG] Calling Gemini API to generate blog...")
-        response = model.generate_content(prompt)
+        print(f"[DEBUG] Calling Puter.js AI to generate blog...")
         
-        if response.text:
-            generated_content = response.text
-            print(f"[DEBUG] Blog article generated successfully (length: {len(generated_content)} characters)")
-            return generated_content
+        # Find the Node.js script path
+        import os
+        script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'puter_ai.js')
+        print(f"[DEBUG] Using script: {script_path}")
+        
+        # Prepare environment with Puter auth token
+        env = os.environ.copy()
+        env['PUTER_AUTH_TOKEN'] = puter_auth_token
+        
+        # Call Node.js script with the prompt
+        process = subprocess.Popen(
+            ['node', script_path, prompt],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env
+        )
+        
+        stdout_bytes, stderr_bytes = process.communicate(timeout=120)
+        
+        # Decode with proper encoding handling
+        try:
+            stderr = stderr_bytes.decode('utf-8', errors='replace')
+        except:
+            stderr = str(stderr_bytes)
+        
+        print(f"[DEBUG] Node.js stderr: {stderr}")
+        
+        if process.returncode != 0:
+            raise Exception(f"Node.js script failed with code {process.returncode}: {stderr}")
+        
+        # Decode stdout
+        try:
+            stdout = stdout_bytes.decode('utf-8')
+        except:
+            stdout = stdout_bytes.decode('utf-8', errors='replace')
+        
+        print(f"[DEBUG] Node.js stdout: {stdout[:200]}")
+        
+        # Parse JSON response from Node.js
+        try:
+            response_data = json.loads(stdout.strip())
+        except json.JSONDecodeError as e:
+            raise Exception(f"Failed to parse Node.js response: {e}. Raw output: {stdout[:500]}")
+        
+        if not response_data.get('success'):
+            raise Exception(f"Puter.js AI error: {response_data.get('error', 'Unknown error')}")
+        
+        # Extract the actual text from the nested response structure
+        content = response_data.get('content', {})
+        
+        # Handle different response formats
+        if isinstance(content, dict):
+            # If content is a dict, check for nested message structure
+            if 'message' in content and isinstance(content['message'], dict):
+                generated_content = content['message'].get('content', '').strip()
+            else:
+                generated_content = content.get('content', '').strip()
         else:
-            raise Exception("Gemini API returned empty response")
+            # If content is already a string
+            generated_content = str(content).strip()
+        
+        if not generated_content:
+            raise Exception("Puter.js AI returned empty response")
+        
+        print(f"[DEBUG] Blog article generated successfully (length: {len(generated_content)} characters)")
+        return generated_content
             
     except Exception as e:
         print(f"[ERROR] generate_blog_from_transcription failed: {str(e)}")
